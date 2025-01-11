@@ -56,9 +56,8 @@ class ArticleViewSet(ViewSet):
             if(article == None) :
                 continue
             
-
             input = get_input_by_hash(transactionHash)
-            if input != None :
+            if input is not None :
                 input_json = json.loads(input)
                 reference = input_json.get('references')
 
