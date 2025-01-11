@@ -51,17 +51,31 @@ def get_transactions_by_account(account_address, from_block, to_block):
 
 def hex_to_utf8(hex_string):
 
-    # 바이트로 변환
-    byte_data = bytes.fromhex(hex_string[2:])
+    # print("!!!!!!!")
+    # print(hex_string)
 
-    # UTF-8로 디코딩
-    utf8_string = byte_data.decode('utf-8')
-    # print(utf8_string)
+    try :
+        # 바이트로 변환
+        byte_data = bytes.fromhex(hex_string[2:])
+
+        # UTF-8로 디코딩
+        utf8_string = byte_data.decode('utf-8')
+        # print(utf8_string)
+
+    except ValueError as e:
+        # 입력이 유효한 16진수가 아닌 경우
+        print(f"Invalid hex input: {input}")
+        raise ValueError("Invalid hexadecimal input.") from e
+
+    except UnicodeDecodeError as e:
+        # UTF-8로 디코딩 실패
+        print(f"Failed to decode input as UTF-8: {input}")
+        raise ValueError("Input cannot be decoded as UTF-8.") from e
 
     return utf8_string
 
 # 각 transation hash로 input 내용 수집
-def get_article_by_hash(transactionHash) :
+def get_input_by_hash(transactionHash) :
 
     # NODIT_API_KEY 불러오기 
     load_dotenv()
@@ -85,9 +99,12 @@ def get_article_by_hash(transactionHash) :
 
     # input만 반환
     data = response.json()
-    input = data.get('input')
+    if(data.get('from') == data.get('to')) :
+        input = data.get('input')
+        return hex_to_utf8(input)
 
-    return hex_to_utf8(input)
+    return
+
 
 def make_transactions(account_address, account_private_key, data):
     try:

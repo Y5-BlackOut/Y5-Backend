@@ -12,5 +12,5 @@ class BlogPostSerializer(serializers.ModelSerializer):
     transactionHash = serializers.CharField(required=False)  # transactionHash 필드 생략 가능
 
     class Meta:
-        model = News
+        model = BlogPost
         fields = ['id', 'title', 'content', 'accountAddress','transactionHash', 'isLatest', 'createdAt', 'updatedAt']
