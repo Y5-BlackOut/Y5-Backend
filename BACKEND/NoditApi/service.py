@@ -84,9 +84,12 @@ def get_article_by_hash(transactionHash) :
 
     # input만 반환
     data = response.json()
+
     input = data.get('input')
 
     # input 값 utf-8로 변환환
     return hex_to_utf8(input)
+
     
 # get_article_by_hash("0xc5b1028dbcc1fa3286d1568201264b8abb6aa7b0142dedfc39bd332f8bc80773")
+get_article_by_hash("0x778c5e6770141d3a5d5ae99e3f8d4702f84e874ed342a7a7a1e0959ca62f2862")
