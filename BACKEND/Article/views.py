@@ -2,8 +2,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import status
-from .models import News
-from .serializers import NewsSerializer
+from .models import News, BlogPost
+from .serializers import NewsSerializer, BlogPostSerializer
 import hashlib
 from NoditApi.service import *
 import json
@@ -25,7 +25,12 @@ class NewsViewSet(ViewSet):
         
         # 데이터 유효성 검사
         if serializer.is_valid():
+        # 데이터 유효성 검사
+        if serializer.is_valid():
 
+            title = serializer.validated_data.get('title', '')
+            content = serializer.validated_data.get('content', '')
+            accountAddress = serializer.validated_data.get('accountAddress', '')
             title = serializer.validated_data.get('title', '')
             content = serializer.validated_data.get('content', '')
             accountAddress = serializer.validated_data.get('accountAddress', '')

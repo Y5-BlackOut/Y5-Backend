@@ -6,6 +6,13 @@ news_list = NewsViewSet.as_view({
     'post': 'create',
 })
 
+blog_list = BlogPostViewSet.as_view({
+    'post': 'create',
+    'get': 'list',
+    'get': 'retrieve',
+})
+
 urlpatterns = [
-    path('news', news_list, name='article-list'),
+     path('news', news_list, name='article-list'),
+     path('blog', blog_list, name="blog-list")
 ]
