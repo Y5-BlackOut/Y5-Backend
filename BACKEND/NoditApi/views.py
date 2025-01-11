@@ -48,24 +48,31 @@ class ArticleViewSet(ViewSet):
             article = ""
 
             if(type == "blog") :
-                article = BlogPost.objects.filter(transactionHash=transactionHash).values('id', 'title', 'content','createdAt').first()
+                article = BlogPost.objects.filter(transactionHash=transactionHash).values('id', 'title', 'content','createdAt','isLatest').first()
             
             else :
-                article = News.objects.filter(transactionHash=transactionHash).values('id', 'title', 'content','createdAt').first()
+                article = News.objects.filter(transactionHash=transactionHash).values('id', 'title', 'content','createdAt','isLatest').first()
             
             if(article == None) :
                 continue
             
+            # 최신 버전만 제공
+            if(article["isLatest"] == False) :
+                continue
+            
+
             input = get_input_by_hash(transactionHash)
             if input is not None :
                 input_json = json.loads(input)
-                reference = input_json.get('references')
+                reference = input_json.get('references', None)
+                old_version = input_json.get('oldVersion', None)
 
             temp["id"] = article["id"]
             temp["title"] = article["title"]
             temp["content"] = article["content"]
             temp["createdAt"] = article["createdAt"]
             temp["reference"] = reference
+            temp["old_version"] = old_version
 
             result["data"].append(temp)
 
