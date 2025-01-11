@@ -56,9 +56,11 @@ class NewsViewSet(ViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  # 유효성 오류 응답
     
     def list(self, request):
-        """모든 BlogPost 글을 조회"""
-        blogs = News.objects.all()
-        serializer = NewsSerializer(blogs, many=True)
+        # isLatest가 True인 데이터만 필터링, 가장 최신 글만 제공공
+        news = News.objects.filter(isLatest=True)
+        
+        # 직렬화 및 응답 반환
+        serializer = NewsSerializer(news, many=True)
         return Response(serializer.data)
     
 
@@ -110,12 +112,14 @@ class BlogPostViewSet(ViewSet):
             return Response(BlogPostSerializer(instance).data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  # 유효성 오류 응답
 
-
     def list(self, request):
-        """모든 BlogPost 글을 조회"""
-        blogs = BlogPost.objects.all()
+        # isLatest가 True인 데이터만 필터링, 가장 최신 글만 제공공
+        blogs = BlogPost.objects.filter(isLatest=True)
+        
+        # 직렬화 및 응답 반환
         serializer = BlogPostSerializer(blogs, many=True)
         return Response(serializer.data)
+
     
 
 class DetailView(ViewSet):
@@ -187,15 +191,15 @@ class DetailView(ViewSet):
 
 class HistoryView(ViewSet):
 
-    # transactionHash 받아서 글 반환환
+    # transactionHash 받아서 글 반환
     def retrieve(self, request, pk=None):
 
-        # Query parameter로 type 가져오기
+        # Request Body에서 transactionHash 가져오기
         transactionHash = request.query_params.get('transactionHash', None)
 
         if not transactionHash:
             return Response(
-                {"error": "transactionHash parameter is required"},
+                {"error": "transactionHash body is required"},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
