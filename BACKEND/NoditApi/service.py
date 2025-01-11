@@ -8,15 +8,17 @@ import binascii
 def get_transactions_by_account(account_address, from_block, to_block):
 
     # 임시로 설정된 값값
-    from_block = "19415000"
+    from_block = "0"
     to_block="latest"
 
     #NODIT_API_KEY 불러오기 
     load_dotenv()
     NODIT_API_KEY = os.getenv("NODIT_API_KEY")
 
-    url = "https://web3.nodit.io/v1/ethereum/mainnet/blockchain/getTransactionsByAccount"
-    
+    # url = "https://web3.nodit.io/v1/ethereum/mainnet/blockchain/getTransactionsByAccount"
+    url = "https://web3.nodit.io/v1/ethereum/sepolia/blockchain/getTransactionsByAccount"
+
+
     headers = {
         "accept": "application/NODIT_API_KEYjson",
         "content-type": "application/json",
@@ -44,6 +46,7 @@ def get_transactions_by_account(account_address, from_block, to_block):
     # print(result)
 
     return result
+    # return data
 
 def hex_to_utf8(hex_string):
 
@@ -57,13 +60,13 @@ def hex_to_utf8(hex_string):
     return utf8_string
 
 # 각 transation hash로 input 내용 수집
-def get_transactions_by_hash(transactionHash) :
+def get_article_by_hash(transactionHash) :
 
     # NODIT_API_KEY 불러오기 
     load_dotenv()
     NODIT_API_KEY = os.getenv("NODIT_API_KEY")
 
-    url = "https://web3.nodit.io/v1/ethereum/mainnet/blockchain/getTransactionByHash"
+    url = "https://web3.nodit.io/v1/ethereum/sepolia/blockchain/getTransactionByHash"
 
     payload = {
         "transactionHash": transactionHash,
@@ -81,7 +84,9 @@ def get_transactions_by_hash(transactionHash) :
 
     # input만 반환
     data = response.json()
+    input = data.get('input')
 
     # input 값 utf-8로 변환환
-    return hex_to_utf8(data)
-
+    return hex_to_utf8(input)
+    
+# get_article_by_hash("0xc5b1028dbcc1fa3286d1568201264b8abb6aa7b0142dedfc39bd332f8bc80773")
