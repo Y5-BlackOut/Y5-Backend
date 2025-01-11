@@ -56,7 +56,7 @@ def hex_to_utf8(hex_string):
 
     # UTF-8로 디코딩
     utf8_string = byte_data.decode('utf-8')
-    print(utf8_string)
+    # print(utf8_string)
 
     return utf8_string
 
@@ -85,11 +85,9 @@ def get_article_by_hash(transactionHash) :
 
     # input만 반환
     data = response.json()
-
     input = data.get('input')
 
-
-    return hex_to_utf8(data)
+    return hex_to_utf8(input)
 
 def make_transactions(account_address, account_private_key, data):
     try:
