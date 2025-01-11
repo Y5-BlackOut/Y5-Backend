@@ -85,3 +85,8 @@ def get_transactions_by_hash(transactionHash) :
     # input 값 utf-8로 변환환
     return hex_to_utf8(data)
 
+load_dotenv()
+NODIT_API_KEY = os.getenv("NODIT_API_KEY")
+
+print(NODIT_API_KEY)
+
