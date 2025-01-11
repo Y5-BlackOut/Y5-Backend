@@ -4,12 +4,13 @@ from .views import *
 # ViewSet의 'list' 메서드를 GET 요청에 매핑
 news_list = NewsViewSet.as_view({
     'post': 'create',
+    'get' : 'list',
 })
 
 blog_list = BlogPostViewSet.as_view({
     'post': 'create',
     'get': 'list',
-    'get': 'retrieve',
+    # 'get': 'retrieve',
 })
 
 urlpatterns = [
