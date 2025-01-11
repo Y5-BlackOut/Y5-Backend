@@ -100,7 +100,7 @@ def make_transactions(account_address, account_private_key, data):
             'nonce': nonce,
             'to': account_address,  # 송신자와 수신자 동일
             'value': web3.to_wei(0.01, 'ether'),  # 전송할 Ether 양
-            'gas': 21240,  # 기본 가스 한도
+            'gas': 40000,  # 기본 가스 한도
             'gasPrice': web3.to_wei('50', 'gwei'),  # 가스 가격
             'chainId': 11155111,  # Sepolia 체인 ID
             'data': web3.to_hex(text=data) #우리 넣을 데이터 여기 들어갈 예정 텍스트가 아니면 이따가 수정해야 돼
@@ -122,4 +122,7 @@ def make_transactions(account_address, account_private_key, data):
     
     
 
-
+# account_address = "0x13F86F941942E1919e3C92A1Cf1Ba4e2d13FE1Cd"
+# account_private_key = "edc827b83ea62038f702902a2226df66ca4f99234da0ea498ec1eb57c6214d50"
+# hash = make_transactions(account_address, account_private_key, "datadatadata")
+# print(hash)
