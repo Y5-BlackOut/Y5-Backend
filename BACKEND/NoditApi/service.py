@@ -51,8 +51,6 @@ def get_transactions_by_account(account_address, from_block, to_block):
 
 def hex_to_utf8(hex_string):
 
-    # print("!!!!!!!")
-    # print(hex_string)
 
     try :
         # 바이트로 변환
@@ -143,3 +141,4 @@ def make_transactions(account_address, account_private_key, data):
 # account_private_key = "edc827b83ea62038f702902a2226df66ca4f99234da0ea498ec1eb57c6214d50"
 # hash = make_transactions(account_address, account_private_key, "datadatadata")
 # print(hash)
+# print(make_transactions(account_address, account_private_key, "sldkfjaldjfsldjfalsdkjflksdjf"))
