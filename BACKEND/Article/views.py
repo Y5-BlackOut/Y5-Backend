@@ -120,7 +120,124 @@ class BlogPostViewSet(ViewSet):
         serializer = BlogPostSerializer(blogs, many=True)
         return Response(serializer.data)
 
-    
+
+class UpdateViewSet(ViewSet):
+        
+    def create(self, request, *args, **kwargs):
+
+        # 요청 데이터에서 유저의 account private key 추출
+        ACCOUNT_PRIVATE_KEY = request.data.get('ACCOUNT_PRIVATE_KEY')
+
+        # 요청 데이터에서 id와 type 추출
+        item_id = request.data.get('id', None)  # id 값 가져오기
+        content_type = request.data.get('type', None)  # type 값 가져오기
+        title = request.data.get('title', None)
+        content = request.data.get('content', None)
+        accountAddress = request.data.get('account_address', None)
+
+        # id와 type 검증
+        if not item_id:
+            return Response(
+                {"error": "id is required in the request body"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if not content_type:
+            return Response(
+                {"error": "type is required in the request body"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # 처리 로직 작성 (예: 모델 조회)
+        if content_type == "blog":
+            model = BlogPost
+        else:
+            model = News
+
+        # id로 해당 객체 조회
+        instance = model.objects.filter(id=item_id).first()
+
+        if not instance:
+            return Response(
+                {"error": f"No {content_type} found with id {item_id}"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # 수정 전 글의 isLatest 값을 False로 업데이트
+        instance.isLatest = False
+        instance.save()  # 변경사항 저장
+        
+        # 수정 전 transactionHash 값 추출
+        oldTransactionHash = instance.transactionHash
+
+        try:
+            # transactionHash를 이용해 관련 데이터를 조회
+            input = get_input_by_hash(oldTransactionHash)
+            
+            if input is not None:
+                input_json = json.loads(input)  # JSON 문자열을 Python dict로 변환
+                
+                # references 값 가져오기
+                reference = input_json.get('references', None)
+                
+                # oldVersion 값 가져오기 (없으면 None)
+                old_version = input_json.get('oldVersion', None)
+
+        except Exception as e:
+            return Response(
+                {"error": "Failed to process input data", "details": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+        # 기존 버전을 old_version 목록에 추가
+        old_version.append(oldTransactionHash) # type 확인 필요 
+
+        # 수정된 글에 대한 integrityHash 및 transactionHash 생성 
+        hash_input = f"{title}{content}{accountAddress}".encode()
+        integrityHash = hashlib.sha256(hash_input).hexdigest()
+
+        data = {
+            "integrityHash" : integrityHash, 
+            "isNew" : False,
+            "references" : reference, 
+            "oldVersion" : old_version
+        }
+        dataToString = json.dumps(data, ensure_ascii=False)
+
+        # 일기 수정에 대한 transaction 생성
+        createTransactionResult = make_transactions(accountAddress, ACCOUNT_PRIVATE_KEY, dataToString)
+        print(createTransactionResult)
+        transactionHash = createTransactionResult.get("transactionHash")
+
+
+
+        # 수정에 대한 새로운 데이터 생성
+        new_instance = model.objects.create(
+            title=title,
+            content=content,
+            transactionHash=transactionHash,
+            isLatest=True,  # 새로 생성된 데이터는 최신 데이터로 설정
+            accountAddress=accountAddress,
+        )
+
+        # 응답 데이터 구성
+        response_data = {
+            "id": new_instance.id,
+            "title": new_instance.title,
+            "content": new_instance.content,
+            "account_address": new_instance.accountAddress,
+            "transactionHash": new_instance.transactionHash,
+            "isLatest": new_instance.isLatest,
+            "createdAt": new_instance.createdAt,
+            "updatedAt": new_instance.updatedAt,
+            "references": reference,
+            "old_version": old_version,
+        }
+
+        return Response(response_data, status=status.HTTP_201_CREATED)
+
+
+
 
 class DetailView(ViewSet):
 
@@ -271,5 +388,8 @@ class HistoryView(ViewSet):
         
 
         return Response(response_data, status=status.HTTP_200_OK)
+    
+
+
 
     

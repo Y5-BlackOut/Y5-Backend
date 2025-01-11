@@ -12,7 +12,6 @@ blog_list = BlogPostViewSet.as_view({
     'get': 'list',
 })
 
-
 detail_list = DetailView.as_view({
     'get': 'retrieve',
 })
@@ -21,10 +20,15 @@ history_list = HistoryView.as_view({
     'get': 'retrieve',
 })
 
+update_list = UpdateViewSet.as_view({
+    'post' : 'create',
+})
+
 
 urlpatterns = [
     path('news', news_list, name='article-list'),
     path('blog', blog_list, name="blog-list"),
-    path('detail/<int:pk>/', detail_list, name='detail-list'),
-    path('history/', history_list, name='history-list'),
+    path('detail/<int:pk>', detail_list, name='detail-list'),
+    path('history', history_list, name='history-list'),
+    path('update', update_list, name='update-list'),
 ]
