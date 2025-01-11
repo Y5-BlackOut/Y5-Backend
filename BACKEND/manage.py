@@ -20,5 +20,5 @@ def main():
 
 
 if __name__ == "__main__":
-    dotenv.read_dotenv() #.env 파일 로드, os.environ에 추가
+    # dotenv.read_dotenv() #.env 파일 로드, os.environ에 추가
     main()

@@ -2,21 +2,24 @@ import requests
 from dotenv import load_dotenv
 import os
 import binascii
+from web3 import Web3
 
 
 # account에 들어있는 모든 transaction hash 값 시간 순으로 반환
 def get_transactions_by_account(account_address, from_block, to_block):
 
     # 임시로 설정된 값값
-    from_block = "19415000"
+    from_block = "0"
     to_block="latest"
 
     #NODIT_API_KEY 불러오기 
     load_dotenv()
     NODIT_API_KEY = os.getenv("NODIT_API_KEY")
 
-    url = "https://web3.nodit.io/v1/ethereum/mainnet/blockchain/getTransactionsByAccount"
-    
+    # url = "https://web3.nodit.io/v1/ethereum/mainnet/blockchain/getTransactionsByAccount"
+    url = "https://web3.nodit.io/v1/ethereum/sepolia/blockchain/getTransactionsByAccount"
+
+
     headers = {
         "accept": "application/NODIT_API_KEYjson",
         "content-type": "application/json",
@@ -44,6 +47,7 @@ def get_transactions_by_account(account_address, from_block, to_block):
     # print(result)
 
     return result
+    # return data
 
 def hex_to_utf8(hex_string):
 
@@ -57,13 +61,13 @@ def hex_to_utf8(hex_string):
     return utf8_string
 
 # 각 transation hash로 input 내용 수집
-def get_transactions_by_hash(transactionHash) :
+def get_article_by_hash(transactionHash) :
 
     # NODIT_API_KEY 불러오기 
     load_dotenv()
     NODIT_API_KEY = os.getenv("NODIT_API_KEY")
 
-    url = "https://web3.nodit.io/v1/ethereum/mainnet/blockchain/getTransactionByHash"
+    url = "https://web3.nodit.io/v1/ethereum/sepolia/blockchain/getTransactionByHash"
 
     payload = {
         "transactionHash": transactionHash,
@@ -81,12 +85,42 @@ def get_transactions_by_hash(transactionHash) :
 
     # input만 반환
     data = response.json()
+    input = data.get('input')
 
-    # input 값 utf-8로 변환환
+
     return hex_to_utf8(data)
 
-load_dotenv()
-NODIT_API_KEY = os.getenv("NODIT_API_KEY")
+def make_transactions(account_address, account_private_key, data):
+    try:
+        RPC_URL = "https://ethereum-sepolia.nodit.io/Gp0BX6eArEipGoSFq2fN4CH3T0yVpy_q"
+        web3 = Web3(Web3.HTTPProvider(RPC_URL))
+    
+        nonce = web3.eth.get_transaction_count(account_address)
 
-print(NODIT_API_KEY)
+        tx = {
+            'nonce': nonce,
+            'to': account_address,  # 송신자와 수신자 동일
+            'value': web3.to_wei(0.01, 'ether'),  # 전송할 Ether 양
+            'gas': 21240,  # 기본 가스 한도
+            'gasPrice': web3.to_wei('50', 'gwei'),  # 가스 가격
+            'chainId': 11155111,  # Sepolia 체인 ID
+            'data': web3.to_hex(text=data) #우리 넣을 데이터 여기 들어갈 예정 텍스트가 아니면 이따가 수정해야 돼
+        }
+
+        # 트랜잭션 서명
+        signed_tx = web3.eth.account.sign_transaction(tx, account_private_key)
+
+        # 트랜잭션 전송
+        tx_hash = web3.eth.send_raw_transaction(signed_tx.raw_transaction)
+
+        # 트랜잭션 해시 반환
+        return {"transactionHash": web3.to_hex(tx_hash)}
+
+    except ValueError as ve:
+        return {"error": f"트랜잭션 서명 오류: {str(ve)}"}
+    except Exception as e:
+        return {"error": f"트랜잭션 전송 오류: {str(e)}"}
+    
+    
+
 
